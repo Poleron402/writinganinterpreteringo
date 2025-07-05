@@ -1,0 +1,1 @@
+This repo is my following along the WRITING AN INTERPRETER IN GO by Thorsten Ball
