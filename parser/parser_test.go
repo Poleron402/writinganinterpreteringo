@@ -8,9 +8,9 @@ import (
 
 func TestLetStatements(t *testing.T) {
 	input  := `
-	let x 5;
-	let = 10;
-	let 838383;`
+	let x =5;
+	let y= 10;
+	let foobar =838383;`
 
 	lexer := lexer.New(input)
 	parser := New(lexer) //in the same package, so calling from parser
@@ -79,4 +79,34 @@ func checkParserErrors(t *testing.T, p *Parser) {
 
 	}
 	t.FailNow()
+}
+
+
+
+func TestReturnStatements(t *testing.T) {
+	input := `
+	return 5;
+	return 10;
+	return 42
+	`
+
+	lexer := lexer.New(input)
+	parser := New(lexer)
+	program := parser.ParseProgram()
+	checkParserErrors(t, parser)
+
+	if len(program.Statements) != 3 {
+		t.Fatalf("program.Statements does not contain 3 statements, %d instead", len(program.Statements))
+	}
+
+	for _, stmt := range program.Statements {
+		returnStatement, ok := stmt.(*ast.ReturnStatement)
+		if !ok { 
+			t.Errorf("stmt not *ast.ReturnStatement, got %T", stmt) // %T prints the type
+			continue
+		}
+		if returnStatement.TokenLiteral() != "return" {
+			t.Errorf("returnStmt.TokenLiteral not 'return', got %q", returnStatement.TokenLiteral())
+		}
+	}
 }
