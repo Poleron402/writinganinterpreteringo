@@ -1,14 +1,17 @@
-package ast
-import "monkey/token"
+package ast // abstract syntax tree
 
+import (
+	"bytes"
+	"monkey/token"
+)
 
 // every node is to implement node interface by providing tokenliteral method
 // this method is used for debugging and testing, and it returns the literal value associated witht the token
 
-
 // Node here is like a base interface
 type Node interface {
 	TokenLiteral() string
+	String() string
 }
 
 type Statement interface {
@@ -27,6 +30,15 @@ type Program struct {
 	Statements []Statement
 }
 
+func (p *Program) String() string {
+	var out bytes.Buffer
+
+	for _, s := range p.Statements {
+		out.WriteString(s.String())
+	}
+
+	return out.String()
+}
 // we are retrieving the first one to see if it is a let or an identifier. Each have their
 // own implementations of TokenLiteral method defined below (NOT RECURSIVE is what im tryna say)
 func (p *Program) TokenLiteral() string {
@@ -37,6 +49,7 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
+// ========== Statements ==========
 type LetStatement struct {
 	Token token.Token //this is token.LET
 	Name *Identifier
@@ -55,6 +68,7 @@ type ReturnStatement struct {
 
 func (rs *ReturnStatement) statementNode() {}
 func (rs *ReturnStatement) TokenLiteral() string {return rs.Token.Literal}
+
 type Identifier struct {
 	Token token.Token // this is token.IDENT
 	Value string
@@ -62,3 +76,48 @@ type Identifier struct {
 
 func (i *Identifier) expressionNode() {} // implements expression, by using its method
 func (i *Identifier) TokenLiteral() string {return i.Token.Literal}
+// ========== Expressions ==========
+
+type ExpressionStatement struct {
+	Token token.Token
+	Expression Expression
+}
+func (e *ExpressionStatement) statementNode() {}
+func (e *ExpressionStatement) TokenLiteral() string {return e.Token.Literal}
+
+// expression strings 2.6
+
+func (l *LetStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(l.TokenLiteral()+" ")
+	out.WriteString(l.Name.Value)
+
+	if l.Value != nil {
+		out.WriteString(" = "+l.Value.String())
+	}
+	out.WriteString(";")
+	return out.String()
+}
+func (rs *ReturnStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(rs.TokenLiteral()+" ")
+
+	if rs.ReturnValue != nil {
+		out.WriteString(" = "+rs.ReturnValue.String())
+	}
+	out.WriteString(";")
+	return out.String()
+}
+
+func (es *ExpressionStatement) String() string {
+	if es.Expression != nil {
+		return es.Expression.String()
+	}
+	return ""
+}
+
+func (idnt *Identifier) String() string {
+	return idnt.Value
+}
