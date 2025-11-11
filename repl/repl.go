@@ -3,9 +3,10 @@ package repl
 import (
 	"bufio"
 	"fmt"
-	"monkey/parser"
 	"io"
+	"monkey/evaluator"
 	"monkey/lexer"
+	"monkey/parser"
 )
 
 const PROMPT = ">> "
@@ -30,7 +31,11 @@ func Start(in io.Reader, out io.Writer) {
 				io.WriteString(out, "\t"+msg+"\n")
 			}
 		}
-		io.WriteString(out, program.String())
-		io.WriteString(out, "\n")
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
+		}
 	}
 }
