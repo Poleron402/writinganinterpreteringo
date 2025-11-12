@@ -273,6 +273,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	if !p.expectPeek(token.ASSIGN){
 		return nil
 	}
+	p.nextToken()
 	// progressing through the expression until we see a semicolon
 	stmt.Value = p.parseExpression(LOWEST)
 	for !p.curTokenIs(token.SEMICOLON){
